@@ -316,7 +316,7 @@
   "use strict";
   document.documentElement.classList.add("js");
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
-  function ready(){ document.body.classList.add("ready"); }
+  function ready(){ document.documentElement.classList.add("ready"); }
 
   // preloader
   var pre=document.getElementById("pre"), cnt=document.getElementById("precnt"), pw=document.getElementById("preword");
