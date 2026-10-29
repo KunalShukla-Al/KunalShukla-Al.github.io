@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kunal Shukla</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap">
+<style>
+  /* Lime editorial: ink black + signal lime, condensed display, mono labels. */
+  :root{
+    --ink:#0a0a0a; --ink2:#111312; --paper:#f4f4f1; --lime:hsl(72 89% 56%);
+    --mute:#8b8f84; --line:#222420; --maxw:1120px;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+  body{margin:0;background:var(--ink);color:var(--paper);font-family:"Instrument Sans",system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  a{color:inherit;}
+  .mono{font-family:"Space Mono",monospace;}
+  .gut{padding-left:max(22px,env(safe-area-inset-left,0px));padding-right:max(22px,env(safe-area-inset-right,0px));}
+  .wrap{max-width:var(--maxw);margin:0 auto;}
+  section{scroll-margin-top:64px;}
+
+  /* preloader */
+  #pre{position:fixed;inset:0;z-index:90;background:var(--lime);color:var(--ink);display:flex;flex-direction:column;justify-content:flex-end;padding:0 max(22px,env(safe-area-inset-left)) 28px;transition:transform .7s cubic-bezier(.76,0,.24,1);}
+  #pre.done{transform:translateY(-101%);}
+  #pre .cnt{font-family:"Anton",sans-serif;font-size:clamp(5rem,26vw,16rem);line-height:.8;letter-spacing:-.02em;}
+  #pre .wrd{font-family:"Space Mono",monospace;font-size:.8rem;letter-spacing:.3em;text-transform:uppercase;margin-bottom:8px;}
+  @media (prefers-reduced-motion:reduce){#pre{display:none;}}
+
+  /* header */
+  header{position:fixed;top:0;left:0;right:0;z-index:70;display:flex;align-items:center;justify-content:space-between;height:60px;background:linear-gradient(var(--ink),rgba(10,10,10,0));padding-top:env(safe-area-inset-top,0px);}
+  .mark{display:flex;align-items:center;gap:12px;}
+  .glyph{font-family:"Anton",sans-serif;background:var(--lime);color:var(--ink);width:34px;height:34px;display:grid;place-items:center;font-size:1.2rem;border-radius:7px;}
+  .mark b{font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.22em;font-weight:700;}
+  .menubtn{font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;background:none;border:1px solid var(--line);color:var(--paper);border-radius:999px;padding:8px 16px;cursor:pointer;transition:background .15s,color .15s,border-color .15s;}
+  .menubtn:hover,.menubtn:focus-visible{background:var(--lime);color:var(--ink);border-color:var(--lime);}
+
+  /* menu overlay */
+  #menu{position:fixed;inset:0;z-index:80;background:var(--lime);color:var(--ink);display:flex;flex-direction:column;justify-content:center;}
+  #menu[hidden]{display:none!important;}
+  #menu .close{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:22px;font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.2em;background:none;border:1px solid rgba(0,0,0,.3);border-radius:999px;padding:8px 16px;cursor:pointer;color:var(--ink);}
+  #menu nav{display:flex;flex-direction:column;}
+  #menu a{display:flex;align-items:baseline;gap:16px;text-decoration:none;font-family:"Anton",sans-serif;font-size:clamp(2.4rem,11vw,6rem);line-height:1.02;text-transform:uppercase;border-top:1.5px solid rgba(0,0,0,.18);padding:10px 0;transition:padding-left .2s,background .2s;}
+  #menu a:last-child{border-bottom:1.5px solid rgba(0,0,0,.18);}
+  #menu a:hover,#menu a:focus-visible{padding-left:18px;background:var(--ink);color:var(--lime);}
+  #menu a .i{font-family:"Space Mono",monospace;font-size:.8rem;opacity:.7;}
+  #menu .soc{margin-top:26px;font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.12em;display:flex;gap:18px;flex-wrap:wrap;}
+  #menu .soc a{font-family:"Space Mono",monospace;font-size:.72rem;}
+
+  /* home */
+  #home{min-height:100svh;display:grid;grid-template-columns:200px 1fr;border-bottom:1.5px solid var(--line);}
+  @media (max-width:640px){#home{grid-template-columns:1fr;}}
+  #home .side{background:var(--lime);color:var(--ink);display:flex;flex-direction:column;justify-content:space-between;padding:76px 20px 24px;}
+  @media (max-width:640px){#home .side{padding:72px 22px 20px;flex-direction:row;align-items:center;}}
+  #home .side .g{font-family:"Anton",sans-serif;font-size:3.4rem;line-height:.8;}
+  #home .side .m{font-family:"Space Mono",monospace;font-size:.66rem;line-height:1.8;letter-spacing:.06em;}
+  #home .stage{position:relative;padding:92px clamp(22px,5vw,60px) 40px;display:flex;flex-direction:column;justify-content:center;}
+  #home .ix{position:absolute;top:88px;right:clamp(22px,5vw,60px);font-family:"Space Mono",monospace;font-size:.68rem;color:var(--mute);text-align:right;line-height:2;}
+  #home .ix a{display:block;text-decoration:none;}
+  #home .ix a:hover{color:var(--lime);}
+  #home .ix b{color:var(--lime);}
+  h1.big{font-family:"Anton",sans-serif;font-weight:400;font-size:clamp(3.4rem,13vw,8.5rem);line-height:.84;letter-spacing:.005em;text-transform:uppercase;margin:0;}
+  .role{font-family:"Space Mono",monospace;font-size:clamp(.74rem,2vw,.9rem);letter-spacing:.14em;color:var(--lime);margin:22px 0 0;text-transform:uppercase;}
+  .intro{font-size:clamp(1rem,2.4vw,1.25rem);max-width:46ch;margin:16px 0 0;color:#d7d9d2;}
+  .chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:26px;}
+  .chip{font-family:"Space Mono",monospace;font-size:.68rem;border:1px solid var(--line);border-radius:999px;padding:6px 13px;color:#cfd2c8;}
+  .cue{margin-top:34px;font-family:"Space Mono",monospace;font-size:.66rem;letter-spacing:.2em;color:var(--mute);}
+
+  /* generic section head */
+  .shead{display:flex;align-items:baseline;gap:16px;border-bottom:1.5px solid var(--line);padding:26px 0 14px;flex-wrap:wrap;}
+  .shead .no{font-family:"Space Mono",monospace;color:var(--lime);font-size:.8rem;}
+  .shead h2{font-family:"Anton",sans-serif;font-weight:400;font-size:clamp(2rem,7vw,3.4rem);line-height:.9;text-transform:uppercase;margin:0;letter-spacing:.01em;}
+  .shead .lbl{margin-left:auto;font-family:"Space Mono",monospace;font-size:.68rem;color:var(--mute);letter-spacing:.1em;}
+
+  /* work */
+  #work{padding:40px 0 10px;}
+  .proj{border-bottom:1.5px solid var(--line);padding:30px 0;display:grid;grid-template-columns:72px 1fr;gap:clamp(14px,3vw,34px);}
+  @media (max-width:640px){.proj{grid-template-columns:1fr;gap:10px;}}
+  .proj .pn{font-family:"Anton",sans-serif;font-size:2.4rem;color:var(--line);line-height:.8;}
+  .proj:hover .pn{color:var(--lime);}
+  .proj .pt{font-family:"Anton",sans-serif;font-size:clamp(1.6rem,5vw,2.6rem);text-transform:uppercase;line-height:.95;margin:0;}
+  .proj .stk{font-family:"Space Mono",monospace;font-size:.7rem;color:var(--mute);margin:8px 0 0;letter-spacing:.04em;}
+  .proj .desc{margin:12px 0 0;max-width:62ch;color:#d7d9d2;}
+  .proj .stats{display:flex;gap:26px;flex-wrap:wrap;margin:16px 0 0;}
+  .proj .stat .v{font-family:"Anton",sans-serif;font-size:1.5rem;color:var(--lime);line-height:1;}
+  .proj .stat .k{font-family:"Space Mono",monospace;font-size:.6rem;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;margin-top:4px;}
+  .proj .links{margin:16px 0 0;display:flex;gap:10px;flex-wrap:wrap;}
+  .plink{font-family:"Space Mono",monospace;font-size:.68rem;text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:6px 12px;transition:background .15s,color .15s,border-color .15s;}
+  .plink:hover{background:var(--lime);color:var(--ink);border-color:var(--lime);}
+  .tagn{font-family:"Space Mono",monospace;font-size:.6rem;color:var(--ink);background:var(--lime);border-radius:4px;padding:2px 7px;margin-left:8px;vertical-align:middle;}
+
+  /* about */
+  #about{padding:40px 0;}
+  .abtgrid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,5vw,56px);padding-top:24px;}
+  @media (max-width:760px){.abtgrid{grid-template-columns:1fr;}}
+  .abtgrid p{font-size:clamp(1rem,2.2vw,1.15rem);color:#d7d9d2;max-width:50ch;}
+  .kv{margin-top:18px;}
+  .kv .r{display:flex;gap:14px;border-top:1px solid var(--line);padding:10px 0;font-size:.92rem;}
+  .kv .r .k{font-family:"Space Mono",monospace;font-size:.66rem;color:var(--lime);width:7.5em;flex:none;text-transform:uppercase;letter-spacing:.06em;padding-top:2px;}
+  .skillblock{margin-top:14px;}
+  .skillblock .h{font-family:"Space Mono",monospace;font-size:.64rem;color:var(--mute);text-transform:uppercase;letter-spacing:.1em;margin:14px 0 7px;}
+  .skillblock .s{display:flex;gap:7px;flex-wrap:wrap;}
+  .skillblock .s span{font-family:"Space Mono",monospace;font-size:.68rem;border:1px solid var(--line);border-radius:5px;padding:4px 9px;color:#cfd2c8;}
+
+  /* contact */
+  #contact{padding:46px 0 30px;}
+  .talk{font-family:"Anton",sans-serif;font-size:clamp(2.6rem,12vw,7rem);line-height:.86;text-transform:uppercase;margin:16px 0 0;}
+  .talk span{color:var(--lime);}
+  .cmail{display:inline-flex;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap;}
+  .cmail code{font-family:"Space Mono",monospace;font-size:clamp(.9rem,2.6vw,1.25rem);color:var(--paper);word-break:break-all;}
+  .copy{font-family:"Space Mono",monospace;font-size:.62rem;letter-spacing:.1em;background:none;border:1px solid var(--line);color:var(--paper);border-radius:999px;padding:6px 12px;cursor:pointer;}
+  .copy:hover{background:var(--lime);color:var(--ink);border-color:var(--lime);}
+  .clinks{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px;}
+
+  footer{border-top:1.5px solid var(--line);padding:22px 0 34px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:"Space Mono",monospace;font-size:.66rem;color:var(--mute);letter-spacing:.06em;}
+</style>
+</head>
+<body>
+<div id="pre" aria-hidden="true"><div class="wrp"><div class="wrd" id="preword">build</div><div class="cnt" id="precnt">000</div></div></div>
+
+<header class="gut">
+  <div class="mark"><span class="glyph">K</span><b>KUNAL SHUKLA</b></div>
+  <button class="menubtn" id="open" aria-haspopup="true">Menu +</button>
+</header>
+
+<div id="menu" hidden role="dialog" aria-label="Menu" aria-modal="true">
+  <div class="gut wrap">
+    <button class="close" id="close">Close ✕</button>
+    <nav>
+      <a href="#home" data-nav><span class="i">01</span>Home</a>
+      <a href="#work" data-nav><span class="i">02</span>Work</a>
+      <a href="#about" data-nav><span class="i">03</span>About</a>
+      <a href="#contact" data-nav><span class="i">04</span>Contact</a>
+    </nav>
+    <div class="soc">
+      <a href="https://github.com/KunalShukla-Al" target="_blank" rel="noopener">GITHUB ↗</a>
+      <a href="https://www.linkedin.com/in/kunal-shukla-466386373" target="_blank" rel="noopener">LINKEDIN ↗</a>
+      <a href="https://acadkit.vercel.app" target="_blank" rel="noopener">ACADKIT ↗</a>
+      <a href="cv.pdf" target="_blank" rel="noopener">CV ↗</a>
+    </div>
+  </div>
+</div>
+
+<main>
+  <section id="home">
+    <div class="side">
+      <div class="g">{K}</div>
+      <div class="m">KUNAL&nbsp;SHUKLA<br>SRM · DATA&nbsp;SCI<br>EST.&nbsp;2026<br>INDIA</div>
+    </div>
+    <div class="stage gut">
+      <div class="ix">
+        <a href="#work"><b>01</b> WORK</a>
+        <a href="#about">02 ABOUT</a>
+        <a href="#contact">03 CONTACT</a>
+      </div>
+      <h1 class="big">Kunal<br>Shukla</h1>
+      <p class="role">ML &amp; Systems · Data Science</p>
+      <p class="intro">I build and ship machine-learning systems — a local LLM inference engine, a study app I run every day, a high-throughput job queue with its own storage engine, and open-source security work.</p>
+      <div class="chips"><span class="chip">m2-infer</span><span class="chip">AcadKit ↗ live</span><span class="chip">jobq</span><span class="chip">VLM research</span></div>
+      <p class="cue">↓ scroll · or open the menu</p>
+    </div>
+  </section>
+
+  <section id="work" class="gut wrap">
+    <div class="shead"><span class="no">02</span><h2>Selected work</h2><span class="lbl">every number is reproducible</span></div>
+
+    <article class="proj">
+      <div class="pn">01</div>
+      <div>
+        <h3 class="pt">m2-infer</h3>
+        <p class="stk">LLM inference engine from scratch · Python · MLX · Metal · GGUF</p>
+        <p class="desc">A Qwen2 inference engine built from scratch — GGUF reader, bit-exact dequantisers, BPE tokenizer and KV cache — with its own Metal GPU kernels and an OpenAI-compatible server. Its logits match Hugging Face Transformers to 5×10⁻⁴.</p>
+        <div class="stats">
+          <div class="stat"><div class="v">66 t/s</div><div class="k">4-bit decode, M2 (llama.cpp 57 · MLX-LM 85)</div></div>
+          <div class="stat"><div class="v">2×</div><div class="k">paged-attention kernel vs copy-out</div></div>
+          <div class="stat"><div class="v">7→87%</div><div class="k">SLO met at 1 req/s via continuous batching</div></div>
+          <div class="stat"><div class="v">6–8%</div><div class="k">cost-model median error (held-out)</div></div>
+        </div>
+        <div class="links"><a class="plink" href="https://github.com/KunalShukla-Al/m2-infer" target="_blank" rel="noopener">GitHub ↗</a></div>
+      </div>
+    </article>
+
+    <article class="proj">
+      <div class="pn">02</div>
+      <div>
+        <h3 class="pt">AcadKit <span class="tagn">LIVE</span></h3>
+        <p class="stk">Full-stack + AI · TypeScript · React · PostgreSQL · Go · local VLMs</p>
+        <p class="desc">A phone + Mac study app for SRM students — attendance, marks, a 5-day Day-Order timetable — shipped at v1.0.0. A PWA on Postgres with row-level security on every table, 62 migrations, and approval-gated CI/CD. A local vision-language pipeline (Qwen3-VL) reads scanned past papers; embeddings cross-link thousands of notes, slides and questions.</p>
+        <div class="stats">
+          <div class="stat"><div class="v">76.2%</div><div class="k">of 2,409 labelled questions found (84.6% end-sems)</div></div>
+          <div class="stat"><div class="v">1,531</div><div class="k">unit tests · Lighthouse 100</div></div>
+          <div class="stat"><div class="v">5,071/s</div><div class="k">jobq (Go) throughput, 256 workers</div></div>
+        </div>
+        <div class="links"><a class="plink" href="https://acadkit.vercel.app" target="_blank" rel="noopener">Live ↗</a><a class="plink" href="https://github.com/KunalShukla-Al/Acadkit" target="_blank" rel="noopener">GitHub ↗</a><a class="plink" href="https://github.com/KunalShukla-Al/jobq" target="_blank" rel="noopener">jobq ↗</a></div>
+      </div>
+    </article>
+
+    <article class="proj">
+      <div class="pn">03</div>
+      <div>
+        <h3 class="pt">How VLMs See Depth <span class="tagn">RESEARCH</span></h3>
+        <p class="stk">AI research · PyTorch · three.js · in progress</p>
+        <p class="desc">Do vision-language models use depth cues the way people do? A seeded 3D renderer and adaptive Bayesian staircases (Psi method) measure how VLMs weigh five depth cues, validated on simulated observers and run across nine models. Qwen2.5-VL-3B reads relative size backwards (p ≈ 7×10⁻¹², unchanged at fp16 — not a quantisation artefact); the 7B sees all five cues but judges depth from height alone.</p>
+        <div class="stats">
+          <div class="stat"><div class="v">9</div><div class="k">models, local &amp; hosted</div></div>
+          <div class="stat"><div class="v">90–98%</div><div class="k">CI coverage on simulated observers</div></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="proj">
+      <div class="pn">04</div>
+      <div>
+        <h3 class="pt">Open source</h3>
+        <p class="stk">Hono · Apache Spark · Koa ecosystem</p>
+        <p class="desc">A wildcard-routing bug in <b>Hono</b> found by differential fuzzing, fixed and merged into v5 with me as co-author (#5556); a query-parsing bug fixed in v4.13.14 (#5580). A <b>pandas 3.1.0</b> import break in <b>Apache Spark</b>'s <code>pyspark.pandas</code>, diagnosed and reported with a minimal repro (#59824). Security issues across the <b>Koa ecosystem</b> (@koa/router authorization skip, signed-cookie, CSS injection) reported by private GitHub Security Advisories.</p>
+        <div class="links"><a class="plink" href="https://github.com/honojs/hono/pull/5556" target="_blank" rel="noopener">Hono #5556 ↗</a><a class="plink" href="https://github.com/apache/spark/issues/59824" target="_blank" rel="noopener">Spark #59824 ↗</a></div>
+      </div>
+    </article>
+  </section>
+
+  <section id="about" class="gut wrap">
+    <div class="shead"><span class="no">03</span><h2>About</h2><span class="lbl">the person behind the repos</span></div>
+    <div class="abtgrid">
+      <div>
+        <p>I'm a Data Science undergrad at SRM who learns by building the whole thing — the inference engine, the database, the kernels — and then measuring it honestly. I care about systems that ship and numbers I can defend.</p>
+        <div class="kv">
+          <div class="r"><span class="k">Degree</span><span>B.Tech CSE (Data Science), SRM Institute of Science and Technology · 2025–2029</span></div>
+          <div class="r"><span class="k">CGPA</span><span>8.14 / 10</span></div>
+          <div class="r"><span class="k">Focus</span><span>LLM inference · ML systems · full-stack + local AI</span></div>
+          <div class="r"><span class="k">Certs</span><span>Oracle OCI Architect Associate (96%) · AI / Agentic / AI-Database / OCI Foundations · GitHub Foundations</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="skillblock">
+          <div class="h">Languages &amp; tools</div>
+          <div class="s"><span>Python</span><span>C</span><span>Java</span><span>SQL</span><span>TypeScript</span><span>Go</span><span>Bash</span><span>Git</span><span>Linux</span></div>
+          <div class="h">ML &amp; data</div>
+          <div class="s"><span>PyTorch</span><span>HF Transformers</span><span>pandas</span><span>NumPy</span><span>SciPy</span><span>Matplotlib</span></div>
+          <div class="h">LLM systems</div>
+          <div class="s"><span>MLX</span><span>Metal</span><span>GGUF</span><span>quantisation</span><span>KV cache</span><span>paged attention</span><span>speculative decoding</span></div>
+          <div class="h">Backend &amp; devops</div>
+          <div class="s"><span>PostgreSQL</span><span>Supabase</span><span>React</span><span>Node.js</span><span>GitHub Actions</span><span>k6</span><span>Prometheus</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="gut wrap">
+    <div class="shead"><span class="no">04</span><h2>Contact</h2><span class="lbl">open to internships &amp; collab</span></div>
+    <p class="talk">Let's<br>build <span>something.</span></p>
+    <div class="cmail"><code id="email">ks6081@srmist.edu.in</code><button class="copy" id="copy">Copy</button></div>
+    <div class="clinks">
+      <a class="plink" href="https://github.com/KunalShukla-Al" target="_blank" rel="noopener">GitHub ↗</a>
+      <a class="plink" href="https://www.linkedin.com/in/kunal-shukla-466386373" target="_blank" rel="noopener">LinkedIn ↗</a>
+      <a class="plink" href="https://acadkit.vercel.app" target="_blank" rel="noopener">AcadKit ↗</a>
+      <a class="plink" href="cv.pdf" target="_blank" rel="noopener">Download CV ↗</a>
+    </div>
+  </section>
+</main>
+
+<footer class="gut wrap">
+  <span>© 2026 KUNAL SHUKLA</span>
+  <span>BUILT &amp; SHIPPED · INDIA</span>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+  // preloader
+  var pre=document.getElementById("pre"), cnt=document.getElementById("precnt"), pw=document.getElementById("preword");
+  if(pre && !reduce){
+    var words=["build","measure","ship","kunal"], n=0, t0=null;
+    function step(ts){
+      if(t0===null)t0=ts;
+      var p=Math.min(1,(ts-t0)/1400);
+      var v=Math.floor(p*100);
+      cnt.textContent=String(v).padStart(3,"0");
+      var wi=Math.min(words.length-1,Math.floor(p*words.length));
+      if(wi!==n){n=wi;pw.textContent=words[wi];}
+      if(p<1){requestAnimationFrame(step);}
+      else{setTimeout(function(){pre.classList.add("done");},180);}
+    }
+    requestAnimationFrame(step);
+  }
+
+  // menu
+  var menu=document.getElementById("menu"), open=document.getElementById("open"), close=document.getElementById("close");
+  function setMenu(on){ menu.hidden=!on; if(on){close.focus();} else {open.focus();} }
+  open.addEventListener("click",function(){setMenu(true);});
+  close.addEventListener("click",function(){setMenu(false);});
+  menu.addEventListener("click",function(e){ if(e.target.matches("[data-nav]")){ setMenu(false); } });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape" && !menu.hidden){setMenu(false);} });
+
+  // copy email
+  var copy=document.getElementById("copy"), email=document.getElementById("email");
+  copy.addEventListener("click",function(){
+    var txt=email.textContent;
+    function ok(){ var o=copy.textContent; copy.textContent="Copied ✓"; setTimeout(function(){copy.textContent=o;},1400); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(ok).catch(select);
+    } else { select(); }
+    function select(){ try{ var r=document.createRange(); r.selectNodeContents(email); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); ok(); }catch(e){} }
+  });
+})();
+</script>
+</body>
+</html>
