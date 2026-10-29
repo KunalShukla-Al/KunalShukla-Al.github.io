@@ -115,6 +115,51 @@
   .clinks{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px;}
 
   footer{border-top:1.5px solid var(--line);padding:22px 0 34px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:"Space Mono",monospace;font-size:.66rem;color:var(--mute);letter-spacing:.06em;}
+
+  /* ---------- desktop composition ---------- */
+  @media (min-width:900px){
+    #home{grid-template-columns:clamp(230px,20vw,340px) 1fr;}
+    #home .side{padding:92px 30px 30px;}
+    #home .side .g{font-size:clamp(3.6rem,5vw,5.2rem);}
+    #home .side .m{font-size:.72rem;}
+    #home .stage{padding-left:clamp(52px,6vw,112px);padding-right:clamp(52px,6vw,112px);}
+    #home .ix{top:96px;font-size:.74rem;line-height:2.1;}
+    h1.big{font-size:clamp(6.5rem,11vw,10.5rem);}
+    .role{font-size:.95rem;margin-top:28px;}
+    .intro{font-size:1.34rem;max-width:44ch;margin-top:20px;line-height:1.45;}
+    .chips{margin-top:30px;}
+    .shead{padding:48px 0 18px;}
+    .shead h2{font-size:clamp(2.8rem,5vw,4.1rem);}
+    #work{padding-top:52px;}
+    .proj{grid-template-columns:120px 1fr;padding:42px 0;border-left:2px solid transparent;transition:border-color .22s ease,background .22s ease,padding-left .22s ease;}
+    .proj .pn{font-size:3.2rem;}
+    .proj .desc{font-size:1.08rem;}
+    .proj .stats{gap:40px;}
+    .proj .stat .v{font-size:1.75rem;}
+    .abtgrid{gap:76px;padding-top:30px;}
+    .abtgrid p{font-size:1.18rem;}
+    #contact{padding:64px 0 40px;}
+  }
+  @media (min-width:1280px){
+    .wrap{max-width:1240px;}
+    #home .stage{padding-right:clamp(80px,7vw,150px);}
+  }
+  @media (min-width:900px) and (hover:hover){
+    .proj:hover{border-left-color:var(--lime);background:linear-gradient(90deg,hsl(72 89% 56%/.055),transparent 55%);padding-left:20px;}
+  }
+
+  /* ---------- motion (reduced-motion safe) ---------- */
+  #home .ix a.active{color:var(--lime);}
+  @media (prefers-reduced-motion:no-preference){
+    .js .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .75s cubic-bezier(.22,1,.36,1);}
+    .js .reveal.in{opacity:1;transform:none;}
+    .js #home h1.big,.js #home .role,.js #home .intro,.js #home .chips,.js #home .cue{opacity:0;transform:translateY(18px);}
+    .js.ready #home h1.big{opacity:1;transform:none;transition:opacity .85s .05s ease,transform .85s .05s cubic-bezier(.22,1,.36,1);}
+    .js.ready #home .role{opacity:1;transform:none;transition:opacity .6s .24s ease,transform .6s .24s ease;}
+    .js.ready #home .intro{opacity:1;transform:none;transition:opacity .6s .36s ease,transform .6s .36s ease;}
+    .js.ready #home .chips{opacity:1;transform:none;transition:opacity .6s .48s ease,transform .6s .48s ease;}
+    .js.ready #home .cue{opacity:1;transform:none;transition:opacity .6s .6s ease,transform .6s .6s ease;}
+  }
 </style>
 </head>
 <body>
@@ -269,7 +314,9 @@
 <script>
 (function(){
   "use strict";
+  document.documentElement.classList.add("js");
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  function ready(){ document.body.classList.add("ready"); }
 
   // preloader
   var pre=document.getElementById("pre"), cnt=document.getElementById("precnt"), pw=document.getElementById("preword");
@@ -283,10 +330,11 @@
       var wi=Math.min(words.length-1,Math.floor(p*words.length));
       if(wi!==n){n=wi;pw.textContent=words[wi];}
       if(p<1){requestAnimationFrame(step);}
-      else{setTimeout(function(){pre.classList.add("done");},180);}
+      else{setTimeout(function(){pre.classList.add("done");ready();},180);}
     }
     requestAnimationFrame(step);
-  }
+    setTimeout(ready,2400);
+  } else { ready(); }
 
   // menu
   var menu=document.getElementById("menu"), open=document.getElementById("open"), close=document.getElementById("close");
@@ -301,11 +349,31 @@
   copy.addEventListener("click",function(){
     var txt=email.textContent;
     function ok(){ var o=copy.textContent; copy.textContent="Copied ✓"; setTimeout(function(){copy.textContent=o;},1400); }
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(txt).then(ok).catch(select);
-    } else { select(); }
     function select(){ try{ var r=document.createRange(); r.selectNodeContents(email); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); ok(); }catch(e){} }
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(ok).catch(select); } else { select(); }
   });
+
+  // scroll reveals + active-section nav (desktop feels alive, not just mobile)
+  if("IntersectionObserver" in window){
+    var targets=document.querySelectorAll(".proj, #about .abtgrid, main section:not(#home) .shead, #contact .talk, #contact .cmail, #contact .clinks, footer");
+    Array.prototype.forEach.call(targets,function(t){ t.classList.add("reveal"); });
+    var ro=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); ro.unobserve(e.target); } });
+    },{rootMargin:"0px 0px -8% 0px",threshold:.12});
+    Array.prototype.forEach.call(targets,function(t){ ro.observe(t); });
+
+    var navlinks=document.querySelectorAll("#home .ix a"), byhref={};
+    Array.prototype.forEach.call(navlinks,function(a){ byhref[a.getAttribute("href")]=a; });
+    var so=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){
+          var a=byhref["#"+e.target.id];
+          if(a){ Array.prototype.forEach.call(navlinks,function(x){x.classList.remove("active");}); a.classList.add("active"); }
+        }
+      });
+    },{rootMargin:"-45% 0px -45% 0px"});
+    ["work","about","contact"].forEach(function(id){ var s=document.getElementById(id); if(s) so.observe(s); });
+  }
 })();
 </script>
 </body>
