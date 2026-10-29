@@ -160,6 +160,16 @@
     .js.ready #home .chips{opacity:1;transform:none;transition:opacity .6s .48s ease,transform .6s .48s ease;}
     .js.ready #home .cue{opacity:1;transform:none;transition:opacity .6s .6s ease,transform .6s .6s ease;}
   }
+
+  /* ---------- scroll-snap spotlight: one project at a time ---------- */
+  @media (prefers-reduced-motion:no-preference){
+    .snap #work .proj{opacity:.3;transform:scale(.985);transition:opacity .55s ease,transform .55s cubic-bezier(.22,1,.36,1),border-color .22s ease,background .22s ease,padding-left .22s ease;}
+    .snap #work .proj.focus{opacity:1;transform:none;border-left-color:var(--lime);}
+    .snap #work .proj.focus .pn{color:var(--lime);}
+  }
+  @media (min-width:900px) and (prefers-reduced-motion:no-preference){
+    .snap .proj{min-height:62vh;align-content:center;}
+  }
 </style>
 </head>
 <body>
@@ -355,7 +365,8 @@
 
   // scroll reveals + active-section nav (desktop feels alive, not just mobile)
   if("IntersectionObserver" in window){
-    var targets=document.querySelectorAll(".proj, #about .abtgrid, main section:not(#home) .shead, #contact .talk, #contact .cmail, #contact .clinks, footer");
+    document.documentElement.classList.add("snap");
+    var targets=document.querySelectorAll("#about .abtgrid, main section:not(#home) .shead, #contact .talk, #contact .cmail, #contact .clinks, footer");
     Array.prototype.forEach.call(targets,function(t){ t.classList.add("reveal"); });
     var ro=new IntersectionObserver(function(es){
       es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); ro.unobserve(e.target); } });
@@ -373,6 +384,74 @@
       });
     },{rootMargin:"-45% 0px -45% 0px"});
     ["work","about","contact"].forEach(function(id){ var s=document.getElementById(id); if(s) so.observe(s); });
+
+    // spotlight: focus the project whose centre is nearest the viewport centre
+    var projs=document.querySelectorAll("#work .proj");
+    if(projs.length){
+      var ticking=false;
+      function updateFocus(){
+        ticking=false;
+        var vc=window.innerHeight/2, best=null, bd=Infinity;
+        Array.prototype.forEach.call(projs,function(p){
+          var r=p.getBoundingClientRect();
+          if(r.bottom<=0 || r.top>=window.innerHeight) return; // off-screen
+          var d=Math.abs(r.top+r.height/2-vc);
+          if(d<bd){ bd=d; best=p; }
+        });
+        Array.prototype.forEach.call(projs,function(p){ p.classList.toggle("focus", p===best); });
+      }
+      var onScroll=function(){ if(!ticking){ ticking=true; requestAnimationFrame(updateFocus); } };
+      window.addEventListener("scroll",onScroll,{passive:true});
+      window.addEventListener("resize",onScroll,{passive:true});
+      updateFocus();
+    }
+  }
+
+  // --- guided pager: one gesture advances/centres the next section ---
+  var slides=[].slice.call(document.querySelectorAll("#home, #work .proj, #about, #contact"));
+  if(slides.length>1){
+    var busy=false, lockT=null;
+    function lock(ms){ busy=true; clearTimeout(lockT); lockT=setTimeout(function(){ busy=false; }, ms); }
+    function blockOf(el){ return (el.id==="about"||el.id==="contact") ? "start" : "center"; }
+    function current(){
+      var vc=window.innerHeight/2, best=0, bd=Infinity;
+      for(var k=0;k<slides.length;k++){ var r=slides[k].getBoundingClientRect(); var d=Math.abs(r.top+r.height/2-vc); if(d<bd){ bd=d; best=k; } }
+      return best;
+    }
+    function go(dir){
+      if(busy) return;
+      var i=current(), r=slides[i].getBoundingClientRect(), vh=window.innerHeight;
+      // a section taller than the screen scrolls through itself before leaving
+      if(dir>0 && r.bottom>vh+8){ busy=true; window.scrollBy({top:Math.round(vh*0.82),behavior:reduce?"auto":"smooth"}); lock(reduce?60:520); return; }
+      if(dir<0 && r.top<-8){ busy=true; window.scrollBy({top:-Math.round(vh*0.82),behavior:reduce?"auto":"smooth"}); lock(reduce?60:520); return; }
+      var j=Math.max(0,Math.min(slides.length-1,i+dir));
+      if(j===i) return;
+      busy=true;
+      slides[j].scrollIntoView({behavior:reduce?"auto":"smooth",block:blockOf(slides[j])});
+      lock(reduce?60:780);
+    }
+    if(!reduce){
+      window.addEventListener("wheel",function(e){
+        if(menu && !menu.hidden) return;
+        if(Math.abs(e.deltaY)<4) return;
+        e.preventDefault();
+        go(e.deltaY>0?1:-1);
+      },{passive:false});
+      var ty=null;
+      window.addEventListener("touchstart",function(e){ ty=e.touches[0].clientY; },{passive:true});
+      window.addEventListener("touchend",function(e){
+        if(ty===null) return;
+        var dy=ty-e.changedTouches[0].clientY; ty=null;
+        if(Math.abs(dy)>40) go(dy>0?1:-1);
+      },{passive:true});
+    }
+    window.addEventListener("keydown",function(e){
+      var t=e.target;
+      if(t&&t.closest&&t.closest("input,textarea,select,[contenteditable=true]")) return;
+      if(menu && !menu.hidden) return;
+      if(e.key==="ArrowDown"||e.key==="PageDown"||e.key===" "){ e.preventDefault(); go(1); }
+      else if(e.key==="ArrowUp"||e.key==="PageUp"){ e.preventDefault(); go(-1); }
+    });
   }
 })();
 </script>
